@@ -22,3 +22,5 @@ To run child node in network, you need to execute ChildNode application with 2 p
 
 For example:
     * ./ChildNode node-1 mV
+
+You can run many chold nodes (sensors) in separete consoles.
