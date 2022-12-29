@@ -3,6 +3,12 @@
 #include <random>
 #include <chrono>
 #include <thread>
+#include <string.h>
+#include <sys/types.h>
+#include <sys/socket.h>
+#include <netinet/in.h>
+#include <netdb.h>
+#include <arpa/inet.h>
 
 class Sensor
 {
@@ -15,10 +21,10 @@ public:
     }
 
     ~Sensor() = default;
-    Sensor(const Sensor&) = delete;
-    Sensor(Sensor&&) = delete;
-    Sensor& operator=(const Sensor&) = delete;
-    Sensor& operator=(Sensor&&) = delete;
+    Sensor(const Sensor &) = delete;
+    Sensor(Sensor &&) = delete;
+    Sensor &operator=(const Sensor &) = delete;
+    Sensor &operator=(Sensor &&) = delete;
 
     unsigned int readMeasuredValue() const
     {
@@ -45,9 +51,45 @@ int main(int argc, char **argv)
     std::string sensor_unit(argv[2]);
 
     Sensor node_sensor(node_name, sensor_unit);
-    while (true)
+
+    constexpr int PORT_NUMBER = 8888;
+
+    struct sockaddr_in addr, cl_addr;
+    int sockfd, ret;
+    char buffer[2000];
+    struct hostent *server;
+    char *serverAddr = "0.0.0.0";
+
+    sockfd = socket(AF_INET, SOCK_STREAM, 0);
+    if (sockfd < 0)
     {
-        node_sensor.readMeasuredValue();
+        std::cout << "Error creating socket! " << std::endl;
+        return 1;
+    }
+    std::cout << "Socket created..." << std::endl;
+
+    memset(&addr, 0, sizeof(addr));
+    addr.sin_family = AF_INET;
+    addr.sin_addr.s_addr = inet_addr(serverAddr);
+    addr.sin_port = PORT_NUMBER;
+
+    ret = connect(sockfd, (struct sockaddr *)&addr, sizeof(addr));
+    if (ret < 0)
+    {
+        std::cout << "Error connecting to the server! " << std::endl;
+        return 2;
+    }
+    std::cout << "Connected to server..." << std::endl;
+    memset(buffer, 0, 2000);
+
+    for (;;)
+    {
+        auto value = std::to_string(node_sensor.readMeasuredValue());
+        ret = sendto(sockfd, &value, value.size(), 0, (struct sockaddr *) &addr, sizeof(addr));  
+        if (ret < 0) {  
+            std::cout << "Error during sending data to the server! " << std::endl;
+        }
+        
         std::this_thread::sleep_for(std::chrono::milliseconds(1000));
     }
 
