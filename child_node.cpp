@@ -82,10 +82,10 @@ int main(int argc, char **argv)
     std::cout << "Connected to server..." << std::endl;
     memset(buffer, 0, 2000);
 
-    for (;;)
+    while (true)
     {
         auto value = std::to_string(node_sensor.readMeasuredValue());
-        ret = sendto(sockfd, &value, value.size(), 0, (struct sockaddr *) &addr, sizeof(addr));  
+        ret = sendto(sockfd, &value, sizeof(value), 0, (struct sockaddr *) &addr, sizeof(addr));  
         if (ret < 0) {  
             std::cout << "Error during sending data to the server! " << std::endl;
         }
