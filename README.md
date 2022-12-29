@@ -11,8 +11,14 @@ To build project run:
 ## Run application
 
 Go to build folder.
+First run Core Node application which is a TCP server on andress 0.0.0.0 port 8888.
+    * ./CoreNode
+
 To run child node in network, you need to execute ChildNode application with 2 paramters :
 
 * first -> node name
 
 * second -> unit of the sensor e.g. mV, mA etc.
+
+For example:
+    * ./ChildNode node-1 mV

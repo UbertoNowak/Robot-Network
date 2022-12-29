@@ -33,6 +33,10 @@ public:
         return measured_value;
     }
 
+    std::string getUnit() const{
+        return _unit;
+    }
+
 private:
     std::string _sensorName;
     std::string _unit;
@@ -47,46 +51,45 @@ int main(int argc, char **argv)
         return 0;
     }
 
-    std::string node_name(argv[1]);
-    std::string sensor_unit(argv[2]);
-
-    Sensor node_sensor(node_name, sensor_unit);
-
     constexpr int PORT_NUMBER = 8888;
-
-    struct sockaddr_in addr, cl_addr;
-    int sockfd, ret;
-    char buffer[2000];
+    constexpr unsigned BUFFER_SIZE = 2000;
+    char buffer[BUFFER_SIZE];
     struct hostent *server;
-    char *serverAddr = "0.0.0.0";
 
-    sockfd = socket(AF_INET, SOCK_STREAM, 0);
-    if (sockfd < 0)
+    int socket_fd = socket(AF_INET, SOCK_STREAM, 0);
+    if (socket_fd < 0)
     {
         std::cout << "Error creating socket! " << std::endl;
         return 1;
     }
     std::cout << "Socket created..." << std::endl;
 
-    memset(&addr, 0, sizeof(addr));
-    addr.sin_family = AF_INET;
-    addr.sin_addr.s_addr = inet_addr(serverAddr);
-    addr.sin_port = PORT_NUMBER;
+    const std::string CORE_NODE_ADRESS("0.0.0.0");
+    struct sockaddr_in server_addr;
+    memset(&server_addr, 0, sizeof(server_addr));
+    server_addr.sin_family = AF_INET;
+    server_addr.sin_addr.s_addr = inet_addr(CORE_NODE_ADRESS.c_str());
+    server_addr.sin_port = PORT_NUMBER;
 
-    ret = connect(sockfd, (struct sockaddr *)&addr, sizeof(addr));
-    if (ret < 0)
+    int rv = connect(socket_fd, (struct sockaddr *)&server_addr, sizeof(server_addr));
+    if (rv < 0)
     {
         std::cout << "Error connecting to the server! " << std::endl;
         return 2;
     }
     std::cout << "Connected to server..." << std::endl;
-    memset(buffer, 0, 2000);
+    memset(buffer, 0, BUFFER_SIZE);
+
+    std::string node_name(argv[1]);
+    std::string sensor_unit(argv[2]);
+    Sensor node_sensor(node_name, sensor_unit);
 
     while (true)
     {
         auto value = std::to_string(node_sensor.readMeasuredValue());
-        ret = sendto(sockfd, &value, sizeof(value), 0, (struct sockaddr *) &addr, sizeof(addr));  
-        if (ret < 0) {  
+        value += " [ " + node_sensor.getUnit() + " ]";
+        rv = sendto(socket_fd, &value, sizeof(value), 0, (struct sockaddr *) &server_addr, sizeof(server_addr));  
+        if (rv < 0) {  
             std::cout << "Error during sending data to the server! " << std::endl;
         }
         
