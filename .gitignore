@@ -40,3 +40,5 @@ build/CMakeFiles/CoreNode.dir/link.txt
 build/CMakeFiles/CoreNode.dir/main.cpp.o
 build/CMakeFiles/CoreNode.dir/main.cpp.o.d
 build/CMakeFiles/CoreNode.dir/progress.make
+build/CMakeFiles/CoreNode.dir/core_node.cpp.o
+build/CMakeFiles/CoreNode.dir/core_node.cpp.o.d
