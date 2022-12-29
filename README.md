@@ -4,15 +4,15 @@
 
 To build project run:
 
-* cmake -B build
+    * cmake -B build
 
-* cmake --build build
+    * cmake --build build
 
 ## Run application
 
 Go to build folder.
 To run child node in network, you need to execute ChildNode application with 2 paramters :
 
-    * first -> node name
+* first -> node name
 
-    * second -> unit of the sensor e.g. mV, mA etc.
+* second -> unit of the sensor e.g. mV, mA etc.
