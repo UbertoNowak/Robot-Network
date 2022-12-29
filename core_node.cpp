@@ -6,10 +6,24 @@
 #include <string.h>
 #include <unistd.h>
 #include <arpa/inet.h>
+#include <vector>
 
 int main(int argc, char **argv)
 {
-    std::cout << "Core node created" << std::endl;
+    if (argc != 2)
+    {
+        std::cout << "Error: Too few arguments. You need pass bufor size." << std::endl;
+        std::cout << "Example: ./CoreNode 100" << std::endl;
+        return 0;
+    }
+
+    // TODO: Implement cyclic buffor with messages - Unfortunately, not enough time to implement it :(
+    unsigned int msg_queue_size = std::stoul(argv[1]);
+    std::vector<std::string> msg_queue;
+    msg_queue.reserve(msg_queue_size);
+
+
+    std::cout << "Core node with buffor size " << msg_queue_size << "created" << std::endl;
     constexpr int BUFFER_SIZE = 2000;
     char buffer[BUFFER_SIZE];
     constexpr int CLIENT_ADDR_LEN = 100;
@@ -78,7 +92,7 @@ int main(int argc, char **argv)
                     std::cerr << "Error: During reading from sensor" << std::endl;
                     return 4;
                 }
-                std::cout << "Recv data from: " << buffer << std::endl;
+                std::cout << "Recv from: " << buffer << std::endl;
             }
         }
         close(new_socket_fd);
